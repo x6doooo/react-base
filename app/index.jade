@@ -1,0 +1,26 @@
+doctype html
+html
+    head
+        meta(charset="utf-8")/
+        title test
+        meta(name="description",content="description")/
+        meta(http-equiv="X-UA-Compatible",content="IE=edge")/
+        meta(name="viewport",content="width=device-width, initial-scale=1")/
+        // Place favicon.ico and apple-touch-icon.png in the root directory
+        // build:css({.tmp,src}) styles/vendor.css
+        link(rel="stylesheet", href="styles/vendor.css")
+        // endbuild
+        // build:css({.tmp,src}) styles/index.css
+        link(rel="stylesheet", href="styles/index.css")
+        // endbuild
+        // build:js scripts/vendor.js
+        script(src="bower_components/jquery/dist/jquery.js")
+        script(src="bower_components/react/react.js")
+        // endbuild
+    body
+        div
+        div#app
+        // build:js scripts/app.js
+        script(src="scripts/app.js")
+        // endbuild
+
