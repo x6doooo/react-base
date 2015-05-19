@@ -35,6 +35,7 @@
     var allRequests = {};
 
     var ModelRequestConfig = {
+        //useCache boolean
         //用于请求url的前缀
         Prefix:'',
         //用户判断请求是否成功的字段
@@ -60,6 +61,7 @@
         params['url'] = ModelRequestConfig.Prefix + params['url'];
 
         var defer = jQuery.Deferred();
+        var rt = defer.promise();
 
         var cacheKey = params['url'];
 
@@ -71,6 +73,7 @@
 
         if (params['useCache'] && cachePool[cacheKey]) {
             setTimeout(function(){
+                delete allRequests[rt.__request_uniq_id__];
                 defer.resolveWith(null, [cachePool[cacheKey]]);
             }, 10);
         } else {
@@ -85,24 +88,38 @@
                 } else {
                     defer.rejectWith(ajax, [json[ModelRequestConfig.CodeField], json[ModelRequestConfig.ErrorField]]);
                 }
+                delete allRequests[rt.__request_uniq_id__];
             }).fail(function(xhr, textStatus) {
                 if (xhr.status == 200) {
                     defer.rejectWith(ajax, [xhr.status, 'JSON解析失败']);
                 } else {
                     defer.rejectWith(ajax, [xhr.status, xhr.statusText]);
                 }
+                delete allRequests[rt.__request_uniq_id__];
             });
         }
 
 
-        var rt = defer.promise();
-        rt.ajax = ajax;
+        rt.__ajax__ = ajax;
+        rt.__request_uniq_id__ = guid('react_ajax_uniq_id');
+        allRequests[rt.__request_uniq_id__] = rt;
+        rt.abort = function() {
+            ajax.abort();
+            delete allRequests[rt.__request_uniq_id__];
+        };
         return rt;
     };
 
     Rajax.Cache = {};
 
+    Rajax.stopAllRequest = function() {
+        $.each(allRequests, function(k, v) {
+            v && v.abort && v.abort();
+        });
+        allRequests = {};
+    };
 
+    module.exports = Rajax;
 
 })();
 
